@@ -5,7 +5,6 @@ import time
 import os
 from pymongo import MongoClient
 
-
 # URL da API
 api_url = "http://api.citybik.es/v2/networks/bicicorunha"
 # Credenciales y URI
@@ -23,8 +22,8 @@ client = MongoClient(uri)
 db = client[database_name]
 collection = db[collection_name]
 
-tiempo_consulta_segundos=5
-tiempo_consulta_minutos=60*tiempo_consulta_segundos
+tiempo_consulta_segundos = 5
+tiempo_consulta_minutos = 60 * tiempo_consulta_segundos
 
 def fetch_data(api_url):
     """
@@ -46,17 +45,18 @@ def process_data(data):
     stations = data.get("network", {}).get("stations", [])
     records = []
     for station in stations:
+        extra = station.get("extra", {})  # Accede al diccionario "extra" o usa un diccionario vacío si no existe
         records.append({
             "id": station.get("id"),
             "name": station.get("name"),
             "timestamp": station.get("timestamp"),
-	    "free_bikes": station.get("free_bikes"),
-	    "empty_slots": station.get("empty_slots"),
-	    "uid": station.get("uid"),
-	    "last_updated": station.get("last_updated"),
-	    "slots": station.get("slots"),
-	    "normal_bikes": station.get("normal_bikes"),
-	    "ebikes": station.get("ebikes")
+            "free_bikes": station.get("free_bikes"),
+            "empty_slots": station.get("empty_slots"),
+            "uid": extra.get("uid"),  # Accede a la clave "uid" dentro de "extra"
+            "last_updated": extra.get("last_updated"),
+            "slots": extra.get("slots"),
+            "normal_bikes": extra.get("normal_bikes"),
+            "ebikes": extra.get("ebikes")
         })
     return pd.DataFrame(records)
 
@@ -72,14 +72,14 @@ def update_and_display():
         
         # Limpar a consola e mostrar o DataFrame
         os.system('clear' if os.name == 'posix' else 'cls')  # Limpa a pantalla
-        print("Datos de Bicicoruña (Actualizado cada ",tiempo_consulta_minutos," segundos):")
+        print("Datos de Bicicoruña (Actualizado cada ", tiempo_consulta_minutos, " segundos):")
         print(df.to_string(index=False))  # Mostra o DataFrame sen índices
         
         data_to_insert = df.to_dict(orient="records")
         
         try:
             result = collection.insert_many(data_to_insert)
-            print("Docuemntos insertados")
+            print("Documentos insertados")
         except Exception as e:
             print("Error ERROR EEERROOOOOOOOR", e)
         
@@ -91,7 +91,7 @@ def main():
     schedule.every(tiempo_consulta_minutos).seconds.do(update_and_display)
 
     # Executar o scheduler
-    print("Iniciando actualización en tempo real (cada ",tiempo_consulta_minutos," segundos). Preme Ctrl+C para saír.")
+    print("Iniciando actualización en tempo real (cada ", tiempo_consulta_minutos, " segundos). Preme Ctrl+C para saír.")
     update_and_display()  # Executar inmediatamente antes de entrar no bucle
     while True:
         schedule.run_pending()
