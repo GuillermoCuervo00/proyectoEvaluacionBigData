@@ -1,88 +1,56 @@
 # Proyecto Big Data - Bicicorunha
 
-Este proyecto consiste en dos scripts que interactúan con la API de Bicicorunha y una base de datos MongoDB. Los scripts permiten consultar datos en tiempo real y exportarlos en formatos útiles como CSV y Parquet.
+Este proyecto consiste en dos scripts que interactúan con la API de Bicicorunha y una base de datos MongoDB en la nube (MongoDB Atlas). Los scripts permiten almacenar datos en tiempo real y exportarlos en formatos CSV y Parquet.
+Requisitos previos
 
-## Estructura del proyecto
+### Para ejecutar este proyecto necesitas tener:
 
-- **`api_to_mongo.py`**: Consulta la API de Bicicorunha a intervalos regulares y almacena los datos en MongoDB.
-- **`export_mongo_data.py`**: Recupera los datos desde MongoDB y los exporta en formatos CSV y Parquet.
-- **`environment.yml`**: Archivo de configuración del entorno Conda con todas las dependencias necesarias.
+    Python (versión 3.8 o superior).
+    Conda (para gestionar el entorno virtual).
+    Acceso a MongoDB Atlas con las credenciales configuradas.
 
----
+### Instalación y configuración
+1. Clonar el repositorio
 
-## Requisitos previos
+Clona este repositorio en tu máquina local con el siguiente comando:
 
-1. **Python 3.8 o superior**.
-2. **Conda**: Para la gestión de entornos.
-3. **MongoDB Atlas**: Servidor de base de datos MongoDB configurado.
-4. **Docker (opcional)**: Para ejecutar el proyecto en contenedores.
+git clone https://github.com/GuillermoCuervo00/proyectoEvaluacionBigData.git
 
----
 
-## Configuración inicial
+### 2. Configurar el entorno Conda
 
-### 1. Clona este repositorio
-```bash
-git clone https://github.com/tu_usuario/proyectoBigData.git
-cd proyectoBigData
-
-2. Crea y activa el entorno Conda
+Crea y activa el entorno virtual con Conda a partir del archivo environment.yml:
 
 conda env create -f environment.yml
 conda activate proyectoBigData
 
-3. Configura MongoDB Atlas
+### 3. Ejecución de los scripts
+1. Insertar datos en MongoDB (APIReaderPeriodico.py)
 
-    Asegúrate de tener una base de datos y una colección en MongoDB Atlas.
-    Actualiza las credenciales y configuraciones en los scripts (api_to_mongo.py y export_mongo_data.py):
-        username
-        password
-        cluster_name
-        database_name
-        collection_name
+El script APIReaderPeriodico.py consulta la API de Bicicorunha y almacena la información en la base de datos MongoDB Atlas cada 5 minutos. El proceso continuará ejecutándose indefinidamente hasta que se cancele manualmente.
 
-4. Instala motores adicionales (opcional)
+Ejecuta el script con:
 
-Para exportar en formato Parquet:
+python APIReaderPeriodico.py
 
-conda install -c conda-forge pyarrow
+Nota: Para detener el proceso, usa Ctrl+C en la terminal.
 
-Uso del proyecto
-1. Ejecutar el Script 1: API a MongoDB
 
-Este script consulta la API a intervalos regulares y almacena los datos en MongoDB.
+2. Exportar datos desde MongoDB (DataBaseReader.py)
 
-python api_to_mongo.py
+El script DataBaseReader.py lee los datos almacenados en MongoDB Atlas y los exporta a dos formatos: CSV y Parquet. Los archivos exportados se guardarán en la raíz del proyecto.
 
-2. Ejecutar el Script 2: Exportación de datos
+Ejecuta el script con:
 
-Este script recupera los datos de MongoDB y los guarda en CSV y Parquet.
+python DataBaseReader.py
 
-python export_mongo_data.py
+Una vez finalizada la ejecución, encontrarás los archivos exportados en la raíz del proyecto:
 
-Los archivos exportados estarán en el directorio actual:
+    data_bicicorunha.csv: Archivo con los datos en formato CSV.
+    data_bicicorunha.parquet: Archivo con los datos en formato Parquet.
 
-    data_bicicorunha.csv
-    data_bicicorunha.parquet
+Estructura del proyecto
 
-Despliegue con Docker (opcional)
-1. Construir la imagen Docker
-
-docker build -t proyecto-bigdata .
-
-2. Ejecutar el contenedor
-
-docker run -d --name proyecto-bigdata proyecto-bigdata
-
-3. Usar Docker Compose (MongoDB + Aplicación)
-
-Crea un archivo docker-compose.yml para ejecutar MongoDB y los scripts juntos.
-Notas importantes
-
-    Control de errores: Ambos scripts manejan fallos de conexión a la API y la base de datos.
-    Seguridad: Asegúrate de no compartir tus credenciales en repositorios públicos.
-    Compatibilidad: Prueba el proyecto en otros sistemas antes de desplegarlo.
-
-Licencia
-
-Este proyecto está licenciado bajo la MIT License. Consulta el archivo LICENSE para más información.
+    APIReaderPeriodico.py: Script que consulta la API periódicamente e inserta los datos en MongoDB Atlas.
+    DataBaseReader.py: Script que recupera los datos de MongoDB y los exporta en formatos CSV y Parquet.
+    environment.yml: Archivo para crear el entorno virtual con Conda.
